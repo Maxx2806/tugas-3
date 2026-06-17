@@ -1,98 +1,177 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, Image } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+// --- PEMANGGILAN ASET GAMBAR LOKAL SESUAI FILE YANG DIUNGGAH ---
+// Pastikan file-file gambar di bawah sudah kamu masukkan ke dalam folder: assets/images/
+const gpuImage = require('../../assets/images/gpu.webp');
+const cpuImage = require('../../assets/images/cpu.png');
+const ramImage = require('../../assets/images/rom.jpg'); // File rom.jpg berisi gambar RAM
+const ssdImage = require('../../assets/images/ram.jpg'); // File ram.jpg berisi gambar SSD
 
-export default function HomeScreen() {
+// Data produk yang disesuaikan dengan gambar asli kamu
+const productsData = [
+  {
+    id: 1,
+    name: "MSI RTX 4070 Ti Super",
+    price: "Rp 12.500.000",
+    image: gpuImage,
+    hasDiscount: true, // Sesuai syarat nomor 4: memiliki badge OFF
+  },
+  {
+    id: 2,
+    name: "Intel Core i7 14th Gen",
+    price: "Rp 6.800.000",
+    image: cpuImage,
+    hasDiscount: false,
+  },
+  {
+    id: 3,
+    name: "Corsair Vengeance DDR5",
+    price: "Rp 1.950.000",
+    image: ramImage,
+    hasDiscount: false,
+  },
+  {
+    id: 4,
+    name: "Samsung SSD 980 M.2",
+    price: "Rp 1.400.000",
+    image: ssdImage,
+    hasDiscount: false,
+  },
+];
+
+export default function CatalogScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <SafeAreaView style={styles.container}>
+      {/* 5. Responsive: Dibungkus ScrollView agar layout tidak pecah saat HP diputar */}
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        
+        {/* 2. Header: Judul di tengah dengan flexDirection: 'column' */}
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerTitle}>TechGears Store</Text>
+          <Text style={styles.headerSubtitle}>Premium Computer Hardware</Text>
+        </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        {/* 3. Product Grid: Menggunakan flexDirection: 'row' dan flexWrap: 'wrap' */}
+        <View style={styles.gridContainer}>
+          {productsData.map((product) => (
+            <View key={product.id} style={styles.productCard}>
+              
+              {/* 4. Absolute Positioning: Kotak kecil bertuliskan OFF di pojok kanan atas */}
+              {product.hasDiscount && (
+                <View style={styles.discountBadge}>
+                  <Text style={styles.discountText}>OFF</Text>
+                </View>
+              )}
+
+              {/* Tempat Menampilkan Gambar Produk */}
+              <View style={styles.imageWrapper}>
+                <Image 
+                  source={product.image}
+                  style={styles.productImage}
+                  resizeMode="contain" // 'contain' menjaga agar seluruh bentuk komponen/box produk terlihat proporsional
+                />
+              </View>
+
+              <Text style={styles.productName} numberOfLines={1}>{product.name}</Text>
+              <Text style={styles.productPrice}>{product.price}</Text>
+            </View>
+          ))}
+        </View>
+
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  scrollContainer: {
+    padding: 16,
     alignItems: 'center',
-    gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  // 2. Header Styling (flexDirection: 'column')
+  headerContainer: {
+    flexDirection: 'column', 
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 30,
+    width: '100%',
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
+  headerTitle: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
+    letterSpacing: 0.5,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#6c757d',
+    marginTop: 4,
+  },
+  // 3. Grid Layout Styling ('row' pada setiap barisnya via wrap)
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  productCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 12,
+    width: '48%', // Membagi menjadi 2 kolom rapi
+    position: 'relative', // Kunci utama agar absolute positioning milik badge mengacu pada card ini
+    marginBottom: 16,
+    // Efek Shadow/Kardus Elegan
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  imageWrapper: {
+    height: 130,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    marginBottom: 10,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  productImage: {
+    width: '100%',
+    height: '100%',
+  },
+  productName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#212529',
+    marginBottom: 4,
+  },
+  productPrice: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#007bff',
+  },
+  // 4. Absolute Positioning Badge "OFF"
+  discountBadge: {
     position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#dc3545', // Warna merah untuk menarik perhatian
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    zIndex: 2, // Memastikan badge menumpuk di atas gambar
+  },
+  discountText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
 });
